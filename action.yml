@@ -24,3 +24,7 @@ inputs:
 runs:
   using: 'docker'
   image: 'Dockerfile'
+
+branding:
+  icon: "arrow-down-circle"
+  color: "green"

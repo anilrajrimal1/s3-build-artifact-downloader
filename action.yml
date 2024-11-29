@@ -1,0 +1,26 @@
+name: 'S3 Build Artifact Downloader'
+description: 'Downloads build artifacts from AWS S3 and extracts it to the dist directory'
+author: "anilrajrimal"
+inputs:
+  aws-access-key-id:
+    description: 'The AWS Access Key ID for authentication'
+    required: true
+  aws-secret-access-key:
+    description: 'The AWS Secret Access Key for authentication'
+    required: true
+  aws-region:
+    description: 'The AWS region where your S3 bucket is located'
+    required: true
+  s3-bucket-name:
+    description: 'The S3 bucket to download the build artifact from'
+    required: true
+  project-name:
+    description: 'The name of the project'
+    required: true
+  zip-name:
+    description: 'The name of the zip file to download from S3'
+    required: true
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'

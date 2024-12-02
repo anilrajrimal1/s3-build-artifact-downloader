@@ -26,7 +26,7 @@ Here’s how you can use this action in your GitHub workflow:
           aws_region: ${{ secrets.AWS_REGION }}
           s3_bucket_name: ${{ secrets.S3_BUCKET_NAME }}
           project_name: my-project
-          zip_name: ${{ github.run_id }}-${{ github.run_attempt }}.zip
+          zip_name: ${{ github.run_id }}-${{ github.run_number }}.zip
 ```
 ## How it Works
 This action will download the specified ZIP file from your S3 bucket and extract its contents to the dist directory in your repository. You can customize the zip-name according to your build naming conventions.

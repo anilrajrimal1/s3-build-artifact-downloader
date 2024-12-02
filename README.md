@@ -19,7 +19,7 @@ Here’s how you can use this action in your GitHub workflow:
 
 ```yaml
       - name: Download Build Artifact from S3
-        uses: anilrajrimal1/s3-build-artifact-downloader@v1
+        uses: anilrajrimal1/s3-build-artifact-downloader@v1.2
         with:
           aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

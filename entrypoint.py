@@ -26,9 +26,10 @@ s3_client = boto3.client(
 zip_path = f'./{zip_name}'
 
 try:
-    print(f'Downloading {zip_name} from s3://{s3_bucket_name}/{project_name}-{zip_name}...')
-    s3_client.download_file(s3_bucket_name, f'{project_name}-{zip_name}', zip_path)
-    print(f'Successfully downloaded {zip_name} from s3://{s3_bucket_name}/{project_name}-{zip_name}')
+    s3_key = f'{project_name}/{project_name}-{zip_name}'
+    print(f'Downloading {zip_name} from s3://{s3_bucket_name}/{project_name}/{project_name}-{zip_name}...')
+    s3_client.download_file(s3_bucket_name, s3_key, zip_path)
+    print(f'Successfully downloaded {zip_name} from s3://{s3_bucket_name}/{project_name}/{project_name}-{zip_name}')
 except NoCredentialsError:
     print("Credentials not available")
 

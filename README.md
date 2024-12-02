@@ -30,9 +30,9 @@ Here’s how you can use this action in your GitHub workflow:
 ```
 ## How it Works
 This action will download the specified ZIP file from your S3 bucket and extract its contents to the dist directory in your repository. You can customize the zip-name according to your build naming conventions.
-    - The action uses `boto3` to interact with `AWS S3`.
-    - The specified ZIP file is downloaded from the S3 bucket and saved locally.
-    - The file is then extracted to the dist directory.
+- The action uses `boto3` to interact with `AWS S3`.
+- The specified ZIP file is downloaded from the S3 bucket and saved locally.
+- The file is then extracted to the dist directory.
 
 ## Inputs in Detail
 

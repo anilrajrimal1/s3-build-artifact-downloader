@@ -1,7 +1,7 @@
 import os
 import zipfile
 import boto3
-from botocore.exceptions import NoCredentialsError
+from botocore.exceptions import NoCredentialsError, ClientError
 
 # Get inputs from environment variables
 aws_access_key_id = os.getenv('INPUT_AWS_ACCESS_KEY_ID')
@@ -24,20 +24,23 @@ s3_client = boto3.client(
 )
 
 zip_path = f'./{zip_name}'
+s3_key = f'{project_name}/{project_name}-{zip_name}'
 
 try:
-    s3_key = f'{project_name}/{project_name}-{zip_name}'
-    print(f'Downloading {zip_name} from s3://{s3_bucket_name}/{project_name}/{project_name}-{zip_name}...')
+    print(f'Downloading {zip_name} from s3://{s3_bucket_name}/{s3_key}...')
     s3_client.download_file(s3_bucket_name, s3_key, zip_path)
-    print(f'Successfully downloaded {zip_name} from s3://{s3_bucket_name}/{project_name}/{project_name}-{zip_name}')
+    print(f'Successfully downloaded {zip_name} to {zip_path}')
 except NoCredentialsError:
-    print("Credentials not available")
+    print("AWS credentials not available.")
+except ClientError as e:
+    print(f"Failed to download file: {e}")
+    exit(1)
 
 # Extract the zip file to the 'dist' directory
 try:
-    print(f'Extracting {zip_name} to dist/...')
+    print(f'Extracting {zip_name} to ./dist...')
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
         zip_ref.extractall('./dist')
-    print(f'Successfully extracted {zip_name} to dist/')
+    print(f'Successfully extracted {zip_name} to ./dist/')
 except Exception as e:
     print(f"Error during extraction: {e}")

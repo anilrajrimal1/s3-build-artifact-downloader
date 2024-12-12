@@ -7,14 +7,20 @@ RUN apt-get update && apt-get install -y \
     libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN groupadd -g 1001 github && \
-    useradd -u 1001 -g github -m github
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup --home /home/appuser appuser
 
-USER github
+RUN chown -R appuser:appgroup /usr/src/app
+
+USER root
 
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY entrypoint.py .
+COPY entrypoint.py ./
+RUN chown appuser:appgroup entrypoint.py
+
+USER appuser
+
+ENV HOME=/home/appuser
 
 ENTRYPOINT ["python3", "/usr/src/app/entrypoint.py"]

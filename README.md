@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download Build Artifact from S3
-        uses: anilrajrimal1/s3-build-artifact-downloader@v1.2
+        uses: anilrajrimal1/s3-build-artifact-downloader@v1.0.0
         with:
           aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

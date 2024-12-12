@@ -15,6 +15,9 @@ zip_name = os.getenv('INPUT_ZIP_NAME')
 if not all([aws_access_key_id, aws_secret_access_key, aws_region, s3_bucket_name, project_name, zip_name]):
     raise ValueError("All inputs must be provided")
 
+current_uid = os.getuid()
+current_gid = os.getgid()
+
 # Download the zip file from S3
 s3_client = boto3.client(
     's3',
@@ -30,17 +33,34 @@ try:
     print(f'Downloading {zip_name} from s3://{s3_bucket_name}/{s3_key}...')
     s3_client.download_file(s3_bucket_name, s3_key, zip_path)
     print(f'Successfully downloaded {zip_name} to {zip_path}')
+
+    os.chmod(zip_path, 0o644)
+    os.chown(zip_path, current_uid, current_gid)
+
 except NoCredentialsError:
     print("AWS credentials not available.")
+    exit(1)
 except ClientError as e:
     print(f"Failed to download file: {e}")
     exit(1)
 
-# Extract the zip file to the 'dist' directory
+dist_dir = './dist'
+
+if not os.path.exists(dist_dir):
+    os.makedirs(dist_dir)
+
 try:
     print(f'Extracting {zip_name} to ./dist...')
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        zip_ref.extractall('./dist')
+        zip_ref.extractall(dist_dir)
+
+    for root, dirs, files in os.walk(dist_dir):
+        for file in files:
+            file_path = os.path.join(root, file)
+            os.chmod(file_path, 0o755)
+            os.chown(file_path, current_uid, current_gid)
+
     print(f'Successfully extracted {zip_name} to ./dist/')
 except Exception as e:
     print(f"Error during extraction: {e}")
+    exit(1)

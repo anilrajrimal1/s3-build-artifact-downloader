@@ -7,6 +7,11 @@ RUN apt-get update && apt-get install -y \
     libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
+RUN groupadd -g 1001 github && \
+    useradd -u 1001 -g github -m github
+
+USER github
+
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 

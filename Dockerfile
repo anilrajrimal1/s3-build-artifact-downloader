@@ -1,15 +1,17 @@
-FROM python:3.12-slim
+FROM alpine:latest
 
-WORKDIR /usr/src/app
+RUN apk update && apk add --no-cache bash
 
-RUN apt-get update && apt-get install -y \
-    libssl-dev \
-    libffi-dev \
-    && rm -rf /var/lib/apt/lists/*
+RUN adduser -D anil
 
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+WORKDIR /home/anil
 
-COPY entrypoint.py .
+COPY entrypoint.sh /home/anil/entrypoint.sh
 
-ENTRYPOINT ["python3", "/usr/src/app/entrypoint.py"]
+RUN chown anil:anil /home/anil/entrypoint.sh
+
+RUN chmod +x /home/anil/entrypoint.sh
+
+USER anil
+
+CMD ["bash", "/home/anil/entrypoint.sh"]

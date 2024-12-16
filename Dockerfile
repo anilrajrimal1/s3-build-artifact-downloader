@@ -1,6 +1,6 @@
-FROM ubuntu:22.04
+FROM alpine:latest
 
-RUN apt-get update && apt-get install -y unzip awscli
+RUN apk add --no-cache unzip aws-cli
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

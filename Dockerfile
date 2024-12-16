@@ -2,9 +2,11 @@ FROM alpine:latest
 
 RUN apk add --no-cache unzip aws-cli
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+WORKDIR /code
+
+COPY entrypoint.sh /code/entrypoint.sh
+RUN chmod +x /code/entrypoint.sh
 
 USER root
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/code/entrypoint.sh"]

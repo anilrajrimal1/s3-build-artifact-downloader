@@ -3,6 +3,9 @@
 # Ensure script exits on error
 set -e
 
+CURRENT_UID=$(id -u)
+CURRENT_GID=$(id -g)
+
 # Get inputs from environment variables
 AWS_ACCESS_KEY_ID="${INPUT_AWS_ACCESS_KEY_ID}"
 AWS_SECRET_ACCESS_KEY="${INPUT_AWS_SECRET_ACCESS_KEY}"
@@ -27,10 +30,6 @@ ZIP_PATH="./${ZIP_NAME}"
 S3_KEY="${PROJECT_NAME}/${PROJECT_NAME}-${ZIP_NAME}"
 DIST_DIR="./dist"
 
-# Current UID and GID
-CURRENT_UID=$(id -u)
-CURRENT_GID=$(id -g)
-
 # Download the zip file from S3
 echo "Downloading ${ZIP_NAME} from s3://${S3_BUCKET_NAME}/${S3_KEY}..."
 if aws s3 cp "s3://${S3_BUCKET_NAME}/${S3_KEY}" "$ZIP_PATH"; then
@@ -40,11 +39,12 @@ else
   exit 1
 fi
 
-# Change permissions of the downloaded zip file
-chmod 644 "$ZIP_PATH"
+# Change ownership of the downloaded zip file to the runner's UID and GID
+echo "Changing ownership for downloaded zip file..."
+chmod 644 "$ZIP_PATH"   # Give read-write to owner, read-only to others
 chown "$CURRENT_UID:$CURRENT_GID" "$ZIP_PATH"
 
-# Create the destination directory
+# Create the destination directory if it doesn't exist
 if [[ ! -d "$DIST_DIR" ]]; then
   mkdir -p "$DIST_DIR"
   echo "Created directory $DIST_DIR"
@@ -59,8 +59,9 @@ else
   exit 1
 fi
 
-# Update permissions for extracted files
+# Update ownership and permissions for extracted files
 echo "Setting ownership and permissions for extracted files..."
+
 find "$DIST_DIR" -type d -exec chmod 755 {} \; -exec chown "$CURRENT_UID:$CURRENT_GID" {} \;
 find "$DIST_DIR" -type f -exec chmod 644 {} \; -exec chown "$CURRENT_UID:$CURRENT_GID" {} \;
 

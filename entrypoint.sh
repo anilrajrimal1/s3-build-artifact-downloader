@@ -3,9 +3,6 @@
 # Ensure script exits on error
 set -e
 
-CURRENT_UID=$(id -u)
-CURRENT_GID=$(id -g)
-
 # Get inputs from environment variables
 AWS_ACCESS_KEY_ID="${INPUT_AWS_ACCESS_KEY_ID}"
 AWS_SECRET_ACCESS_KEY="${INPUT_AWS_SECRET_ACCESS_KEY}"
@@ -25,44 +22,25 @@ export AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY
 export AWS_DEFAULT_REGION="$AWS_REGION"
 
-# Paths and S3 key
+# Paths
 ZIP_PATH="./${ZIP_NAME}"
 S3_KEY="${PROJECT_NAME}/${PROJECT_NAME}-${ZIP_NAME}"
 DIST_DIR="./dist"
 
 # Download the zip file from S3
 echo "Downloading ${ZIP_NAME} from s3://${S3_BUCKET_NAME}/${S3_KEY}..."
-if aws s3 cp "s3://${S3_BUCKET_NAME}/${S3_KEY}" "$ZIP_PATH"; then
-  echo "Successfully downloaded ${ZIP_NAME} to ${ZIP_PATH}"
-else
-  echo "Failed to download ${ZIP_NAME} from S3." >&2
-  exit 1
-fi
+aws s3 cp "s3://${S3_BUCKET_NAME}/${S3_KEY}" "$ZIP_PATH"
 
-# Change ownership of the downloaded zip file to the runner's UID and GID
-echo "Changing ownership for downloaded zip file..."
-chmod 644 "$ZIP_PATH"   # Give read-write to owner, read-only to others
-chown "$CURRENT_UID:$CURRENT_GID" "$ZIP_PATH"
-
-# Create the destination directory if it doesn't exist
-if [[ ! -d "$DIST_DIR" ]]; then
-  mkdir -p "$DIST_DIR"
-  echo "Created directory $DIST_DIR"
-fi
+# Create target directory
+mkdir -p "$DIST_DIR"
 
 # Extract the zip file
 echo "Extracting ${ZIP_NAME} to ${DIST_DIR}..."
-if unzip -q "$ZIP_PATH" -d "$DIST_DIR"; then
-  echo "Successfully extracted ${ZIP_NAME} to ${DIST_DIR}/"
-else
-  echo "Failed to extract ${ZIP_NAME}" >&2
-  exit 1
-fi
+unzip -q "$ZIP_PATH" -d "$DIST_DIR"
 
-# Update ownership and permissions for extracted files
-echo "Setting ownership and permissions for extracted files..."
-
-find "$DIST_DIR" -type d -exec chmod 755 {} \; -exec chown "$CURRENT_UID:$CURRENT_GID" {} \;
-find "$DIST_DIR" -type f -exec chmod 644 {} \; -exec chown "$CURRENT_UID:$CURRENT_GID" {} \;
+# Set liberal permissions to extracted files
+echo "Setting permissions for extracted files..."
+find "$DIST_DIR" -type d -exec chmod 755 {} \;
+find "$DIST_DIR" -type f -exec chmod 644 {} \;
 
 echo "Process completed successfully!"

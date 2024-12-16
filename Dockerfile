@@ -1,11 +1,10 @@
-FROM alpine:latest
+FROM ubuntu:22.04
 
-RUN apk update && apk add --no-cache bash zip aws-cli
+RUN apt-get update && apt-get install -y unzip awscli
 
-WORKDIR /home/anil
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-COPY entrypoint.sh /home/anil/entrypoint.sh
+USER root
 
-RUN chmod +x /home/anil/entrypoint.sh
-
-CMD ["bash", "/home/anil/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]

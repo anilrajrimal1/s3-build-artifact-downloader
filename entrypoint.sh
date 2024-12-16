@@ -27,6 +27,12 @@ ZIP_PATH="./${ZIP_NAME}"
 S3_KEY="${PROJECT_NAME}/${PROJECT_NAME}-${ZIP_NAME}"
 DIST_DIR="./dist"
 
+# Cleanup
+if [[ -d "$DIST_DIR" ]]; then
+  echo "Cleaning up previous files in ${DIST_DIR}..."
+  rm -rf "$DIST_DIR"  # Remove the dist directory
+fi
+
 # Download the zip file from S3
 echo "Downloading ${ZIP_NAME} from s3://${S3_BUCKET_NAME}/${S3_KEY}..."
 aws s3 cp "s3://${S3_BUCKET_NAME}/${S3_KEY}" "$ZIP_PATH"
@@ -38,9 +44,14 @@ mkdir -p "$DIST_DIR"
 echo "Extracting ${ZIP_NAME} to ${DIST_DIR}..."
 unzip -q "$ZIP_PATH" -d "$DIST_DIR"
 
-# Set liberal permissions to extracted files
 echo "Setting permissions for extracted files..."
+
+chown -R appuser:appuser "$DIST_DIR"
+
+# Set directory permissions
 find "$DIST_DIR" -type d -exec chmod 755 {} \;
+
+# Set file permissions
 find "$DIST_DIR" -type f -exec chmod 644 {} \;
 
 echo "Process completed successfully!"

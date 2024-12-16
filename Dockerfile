@@ -1,12 +1,17 @@
 FROM alpine:latest
 
-RUN apk add --no-cache unzip aws-cli
+RUN apk update && apk add --no-cache \
+    aws-cli \
+    unzip \
+    bash \
+    && adduser -D -u 1000 appuser
 
 WORKDIR /code
 
 COPY entrypoint.sh /code/entrypoint.sh
+
 RUN chmod +x /code/entrypoint.sh
 
-USER root
+USER appuser
 
 ENTRYPOINT ["/code/entrypoint.sh"]

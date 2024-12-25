@@ -1,6 +1,6 @@
 name: 'S3 Build Artifact Downloader'
 description: 'Downloads build artifacts from AWS S3 and extracts it to the dist directory'
-author: "anilrajrimal"
+author: 'anilrajrimal'
 inputs:
   aws-access-key-id:
     description: 'The AWS Access Key ID for authentication'
@@ -22,8 +22,18 @@ inputs:
     required: true
 
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: 'composite'
+  steps:
+    - name: Download and extract artifacts
+      shell: bash
+      run: entrypoint.sh
+      env:
+        INPUT_AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
+        INPUT_AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
+        INPUT_AWS_REGION: ${{ inputs.aws-region }}
+        INPUT_S3_BUCKET_NAME: ${{ inputs.s3-bucket-name }}
+        INPUT_PROJECT_NAME: ${{ inputs.project-name }}
+        INPUT_ZIP_NAME: ${{ inputs.zip-name }}
 
 branding:
   icon: "arrow-down-circle"
